@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisi Akademik Digital - UPT SMPN 1 MAPPEDECENG</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path d=%22M30 70 L50 30 L70 70 Z%22 fill=%22white%22/></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        #root {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #print-section {
+            display: none;
+        }
+
+        @media print {
+            body > *:not(#print-section) {
+                display: none !important;
+            }
+
+            #print-section {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+            }
+
+            html, body {
+                height: auto !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+
+            @page {
+                size: A4;
+                margin: 1.5cm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+    <script>
+      // Shims for libraries that expect Node or Global environment
+      window.global = window;
+      window.process = { 
+        env: { 
+          NODE_ENV: 'production',
+          GEMINI_API_KEY: '' 
+        } 
+      };
+      
+      // Global diagnostic for production
+      window.onerror = function(msg, url, line, col, error) {
+        console.error("APP CRASH:", msg, error);
+        const root = document.getElementById('root');
+        if (root && root.innerHTML === '') {
+          document.body.innerHTML += '<div style="background:#fee2e2;color:#991b1b;padding:24px;margin:20px;border-radius:12px;border:1px solid #fecaca;font-family:sans-serif;">' +
+            '<h2 style="margin-top:0">Terjadi Kesalahan Aplikasi</h2>' +
+            '<p style="margin-bottom:8px;font-size:14px;font-weight:bold;">Aplikasi tidak dapat dimuat.</p>' +
+            '<p style="margin-bottom:0;font-size:12px;opacity:0.8;">Detail: ' + msg + '</p>' +
+            '</div>';
+        }
+      };
+    </script>
+</head>
+<body class="text-slate-900 bg-slate-50">
+    <div id="root"></div>
+    <div id="print-section"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

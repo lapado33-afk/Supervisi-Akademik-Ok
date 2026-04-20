@@ -1,11 +1,35 @@
-<div align="center">
+# Supervisi Akademik Digital - SMPN Luwu Utara
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Platform digital untuk memfasilitasi siklus supervisi akademik (Pra, Observasi, Pasca) berbasis Kurikulum Merdeka dengan bantuan AI untuk umpan balik konstruktif.
 
-  <h1>Built with AI Studio</h2>
+## Fitur Utama
+- **Pra-Observasi**: Perencanaan dan kesepakatan fokus observasi.
+- **Observasi Kelas**: Checklist real-time saat kegiatan belajar mengajar.
+- **Pasca-Observasi**: Coaching dengan alur TIRTA untuk refleksi dan pengembangan.
+- **Analisis AI**: Menggunakan Google Gemini AI untuk memberikan saran pedagogis yang objektif.
+- **Cetak Laporan**: Generate laporan resmi dalam format cetak/PDF.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Cara Instalasi Lokal
+1. Clone repositori ini:
+   ```bash
+   git clone <url-repo-anda>
+   cd supervisi-akademik-digital
+   ```
+2. Instal dependensi:
+   ```bash
+   npm install
+   ```
+3. Buat file `.env` dan tambahkan API Key Gemini Anda:
+   ```env
+   GEMINI_API_KEY=your_api_key_here
+   ```
+4. Jalankan aplikasi dalam mode pengembangan:
+   ```bash
+   npm run dev
+   ```
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
+## Deploy ke Vercel (Opsional)
+1. Unggah kode ke GitHub.
+2. Hubungkan ke Vercel.
+3. Tambahkan Environment Variable `GEMINI_API_KEY`.
+4. Pastikan konfigurasi Google Sheets di `services/sheetsService.ts` sudah mengarah ke Apps Script yang benar.
