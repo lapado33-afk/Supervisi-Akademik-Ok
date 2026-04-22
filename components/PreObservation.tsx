@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Info, ChevronRight, FileText, BookOpen, Clock, Target, CreditCard, Layers, Zap, StickyNote, Check, Plus, User } from 'lucide-react';
-import { TEACHERS, FOCUS_OPTIONS } from '../constants';
+import { Info, ChevronRight, FileText, BookOpen, Clock, Target, CreditCard, Layers, Zap, StickyNote, Check, Plus, User, Camera, X } from 'lucide-react';
+import { TEACHERS, FOCUS_OPTIONS, Teacher } from '../constants';
 import { ObservationData, SupervisionStatus } from '../types';
+import { compressImage } from '../lib/imageUtils';
 
 interface Props {
   onSave: (data: ObservationData) => void;
@@ -48,6 +49,19 @@ const PreObservation: React.FC<Props> = ({ onSave, principalNip, teachers }) => 
   const [selectedFocus, setSelectedFocus] = useState('');
   const [isSaved, setIsSaved] = useState(false);
   const [photoUrl, setPhotoUrl] = useState('');
+  const [photoPre, setPhotoPre] = useState<string | undefined>(undefined);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const compressed = await compressImage(reader.result as string);
+        setPhotoPre(compressed);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     if (selectedTeacher === 'manual') {
@@ -103,7 +117,8 @@ const PreObservation: React.FC<Props> = ({ onSave, principalNip, teachers }) => 
       reflection: '',
       coachingFeedback: '',
       rtl: '',
-      status: SupervisionStatus.PLANNED
+      status: SupervisionStatus.PLANNED,
+      photoPre: photoPre
     };
 
     onSave(data);
@@ -326,6 +341,40 @@ const PreObservation: React.FC<Props> = ({ onSave, principalNip, teachers }) => 
                 <p className="text-[10px] text-slate-500 leading-relaxed font-medium">{focus.description}</p>
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="space-y-4 pt-4">
+          <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest">
+            Dokumentasi Pra-Observasi (Opsional)
+          </label>
+          <div className="flex items-center space-x-4">
+            <label className="cursor-pointer group">
+              <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-400 group-hover:border-blue-500 group-hover:text-blue-600 transition-all overflow-hidden relative">
+                {photoPre ? (
+                  <>
+                    <img src={photoPre} alt="Preview" className="w-full h-full object-cover" />
+                    <button 
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); setPhotoPre(undefined); }}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-all"
+                    >
+                      <X size={12} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Camera size={24} className="mb-2" />
+                    <span className="text-[10px] font-bold uppercase">Unggah Foto</span>
+                  </>
+                )}
+              </div>
+              <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+            </label>
+            <div className="text-xs text-slate-400 font-medium">
+              <p>Format: JPG, PNG (Maks 2MB)</p>
+              <p>Foto bukti pertemuan perencanaan supervisi.</p>
+            </div>
           </div>
         </div>
 

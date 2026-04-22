@@ -39,17 +39,28 @@ export const generateCoachingAdvice = async (notes: string, focusId: string) => 
     };
 
     const prompt = `
-      PERAN: Anda adalah "Desainer Pembelajaran Mendalam" (Deep Learning Designer).
-      TUGAS: Berikan narasi umpan balik coaching alur TIRTA yang sangat bersih dan manusiawi.
-      DATA OBSERVASI: "${notes}"
-      FOKUS: "${focusMap[focusId] || 'Umum'}"
+      PERAN: Anda adalah "Senior Instructional Coach" yang ahli dalam supervisi akademik klinis.
+      TUGAS: Berikan narasi umpan balik coaching menggunakan alur TIRTA (Tujuan, Identifikasi, Rencana, Aksi) berdasarkan data observasi nyata.
+      
+      DATA OBSERVASI: 
+      "${notes}"
+      
+      FOKUS KOMPETENSI: 
+      "${focusMap[focusId] || 'Umum'}"
+      
+      INSTRUKSI ANALISIS:
+      1. Berikan apresiasi yang spesifik pada perilaku guru yang sudah muncul berdasarkan catatan tersebut.
+      2. Berikan saran perbaikan yang konkret dan praktis untuk perilaku yang belum optimal atau butuh penguatan.
+      3. Kaitkan saran Anda dengan teori pedagogi yang relevan (misal: scaffolding, zona perkembangan proksimal, motivasi intrinsik, atau regulasi diri) secara halus dalam narasi.
+      4. Gunakan alur TIRTA: Mulai dengan mengakui tujuan guru, identifikasi fakta di kelas, berikan saran rencana pengembangan, dan dorong aksi nyata.
       
       KONTROL OUTPUT:
-      1. Tuliskan dalam bentuk PARAGRAF NARASI yang mengalir saja.
-      2. Gunakan Bahasa Indonesia formal yang menyentuh hati.
-      3. JANGAN berikan judul, JANGAN gunakan bullet points atau penomoran.
+      1. Tuliskan dalam bentuk PARAGRAF NARASI yang mengalir dan inspiratif.
+      2. Gunakan Bahasa Indonesia formal dan profesional namun tetap suportif.
+      3. JANGAN gunakan daftar (bullet points), JANGAN berikan judul seksi, JANGAN gunakan penomoran.
       4. Ganti istilah "Profil Pelajar Pancasila" menjadi "8 Dimensi Profil Lulusan".
       5. Output harus 100% teks polos tanpa kode atau format markdown apa pun.
+      6. Minimal 150 kata untuk memastikan kedalaman saran.
     `;
 
     const response = await ai.models.generateContent({

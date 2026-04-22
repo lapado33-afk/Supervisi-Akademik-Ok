@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Save, Camera, Check, CircleX, MousePointer2, ChevronDown, ListChecks, MessageSquareText, Plus } from 'lucide-react';
+import { Save, Camera, Check, CircleX, MousePointer2, ChevronDown, ListChecks, MessageSquareText, Plus, X } from 'lucide-react';
 import { PERFORMANCE_RUBRICS, TEACHERS } from '../constants';
-import { ObservationData, SupervisionStatus } from '../types';
+import { ObservationData, SupervisionStatus, Teacher } from '../types';
+import { compressImage } from '../lib/imageUtils';
 
 // Mapping saran temuan spesifik berdasarkan ID Target Perilaku
 const OBSERVATION_SUGGESTIONS: Record<string, string[]> = {
@@ -130,6 +131,19 @@ const ObservationForm: React.FC<Props> = ({ observations, onSave, teachers }) =>
   const [indicators, setIndicators] = useState<{[key: string]: {checked: boolean, note: string}}>({});
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [isSaved, setIsSaved] = useState(false);
+  const [photoObs, setPhotoObs] = useState<string | undefined>(undefined);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const compressed = await compressImage(reader.result as string);
+        setPhotoObs(compressed);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const activeRubric = PERFORMANCE_RUBRICS.find(r => r.id === rubricId) || PERFORMANCE_RUBRICS[0];
 
@@ -150,6 +164,7 @@ const ObservationForm: React.FC<Props> = ({ observations, onSave, teachers }) =>
       if (existing) {
         if (existing.indicators) setIndicators(existing.indicators);
         if (existing.additionalNotes) setAdditionalNotes(existing.additionalNotes);
+        if (existing.photoObs) setPhotoObs(existing.photoObs);
         
         const firstKey = Object.keys(existing.indicators || {})[0];
         if (firstKey?.startsWith('ks_')) setRubricId('keteraturan_suasana');
@@ -227,7 +242,8 @@ const ObservationForm: React.FC<Props> = ({ observations, onSave, teachers }) =>
       reflection: '',
       coachingFeedback: '',
       rtl: '',
-      status: SupervisionStatus.OBSERVED
+      status: SupervisionStatus.OBSERVED,
+      photoObs: photoObs
     };
 
     onSave(data);
@@ -388,16 +404,55 @@ const ObservationForm: React.FC<Props> = ({ observations, onSave, teachers }) =>
           </div>
 
           <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-4">
-            <div className="flex items-center space-x-2 text-slate-900">
-              <MessageSquareText size={20} className="text-blue-600" />
-              <h3 className="text-lg font-bold">Catatan Tambahan Pelaksanaan</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 text-slate-900">
+                  <MessageSquareText size={20} className="text-blue-600" />
+                  <h3 className="text-lg font-bold">Catatan Tambahan</h3>
+                </div>
+                <textarea 
+                  value={additionalNotes}
+                  onChange={(e) => setAdditionalNotes(e.target.value)}
+                  placeholder="Tambahkan catatan umum lainnya selama observasi berlangsung (opsional)..."
+                  className="w-full bg-slate-50 border border-slate-200 p-6 rounded-[2rem] text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all shadow-inner min-h-[120px]"
+                />
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 text-slate-900">
+                  <Camera size={20} className="text-blue-600" />
+                  <h3 className="text-lg font-bold">Dokumentasi Pelaksanaan</h3>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <label className="cursor-pointer group">
+                    <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-400 group-hover:border-blue-500 group-hover:text-blue-600 transition-all overflow-hidden relative">
+                      {photoObs ? (
+                        <>
+                          <img src={photoObs} alt="Preview" className="w-full h-full object-cover" />
+                          <button 
+                            type="button"
+                            onClick={(e) => { e.preventDefault(); setPhotoObs(undefined); }}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-all"
+                          >
+                            <X size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Camera size={24} className="mb-2" />
+                          <span className="text-[10px] font-bold uppercase text-center px-2">Unggah Foto Pelaksanaan</span>
+                        </>
+                      )}
+                    </div>
+                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                  </label>
+                  <div className="text-xs text-slate-400 font-medium">
+                    <p>Format: JPG, PNG (Maks 2MB)</p>
+                    <p>Bukti foto saat observasi di dalam kelas.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <textarea 
-              value={additionalNotes}
-              onChange={(e) => setAdditionalNotes(e.target.value)}
-              placeholder="Tambahkan catatan umum lainnya selama observasi berlangsung (opsional)..."
-              className="w-full bg-slate-50 border border-slate-200 p-6 rounded-[2rem] text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all shadow-inner min-h-[120px]"
-            />
           </div>
 
           <div className="flex justify-end pt-8">

@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, MessageCircle, RefreshCcw, Check, Clock, History, CircleAlert, MousePointer2, ListChecks, Lightbulb, CircleCheck, Copy, User } from 'lucide-react';
-import { ObservationData, SupervisionStatus } from '../types';
-import { TEACHERS, FOCUS_OPTIONS } from '../constants';
+import { Sparkles, MessageCircle, RefreshCcw, Check, Clock, History, CircleAlert, MousePointer2, ListChecks, Lightbulb, CircleCheck, Copy, User, Camera, X } from 'lucide-react';
+import { ObservationData, SupervisionStatus, Teacher } from '../types';
+import { compressImage } from '../lib/imageUtils';
+import { TEACHERS, FOCUS_OPTIONS, OBSERVATION_INDICATORS } from '../constants';
 import { generateCoachingAdvice } from '../services/geminiService';
 
 interface Props {
@@ -35,6 +36,19 @@ const PostObservation: React.FC<Props> = ({ observations, onSave, teachers }) =>
   const [isCopied, setIsCopied] = useState(false);
   const [isAiCopied, setIsAiCopied] = useState(false);
   const [viewMode, setViewMode] = useState<'pending' | 'history'>('pending');
+  const [photoPost, setPhotoPost] = useState<string | undefined>(undefined);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const compressed = await compressImage(reader.result as string);
+        setPhotoPost(compressed);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Pembersihan akhir HANYA dilakukan saat tombol Simpan ditekan
   const cleanTextFinal = (text: string) => {
@@ -54,6 +68,7 @@ const PostObservation: React.FC<Props> = ({ observations, onSave, teachers }) =>
     setReflection(obs.reflection || '');
     setFeedback(obs.coachingFeedback || '');
     setRtl(obs.rtl || '');
+    setPhotoPost(obs.photoPost || undefined);
     setAiAdvice('');
   };
 
@@ -78,13 +93,21 @@ const PostObservation: React.FC<Props> = ({ observations, onSave, teachers }) =>
     
     setIsGenerating(true);
     try {
-      const indicators = selectedObs.indicators || {};
-      const allNotes = Object.values(indicators)
-        .map(i => (i as { note?: string }).note)
-        .filter(n => n && n.trim() !== "")
-        .join(". ");
+      const indicatorsMap = selectedObs.indicators || {};
+      
+      // Ambil label dari konstanta
+      const detailedNotes = Object.keys(indicatorsMap)
+        .map(id => {
+          const indicator = OBSERVATION_INDICATORS.find(ind => ind.id === id);
+          const data = indicatorsMap[id] as { note?: string, checked?: boolean };
+          if (!data.note && !data.checked) return null;
+          
+          return `Indikator: ${indicator?.label || id}\nStatus: ${data.checked ? 'Teramati (ADA)' : 'Belum Teramati'}\nCatatan: ${data.note || 'Tidak ada catatan khusus'}`;
+        })
+        .filter(Boolean)
+        .join("\n\n");
 
-      const contextNotes = allNotes || "Guru telah melaksanakan pembelajaran sesuai rencana.";
+      const contextNotes = detailedNotes || "Guru telah melaksanakan pembelajaran sesuai rencana, namun tidak ada catatan spesifik pada indikator target perilaku.";
       const advice = await generateCoachingAdvice(contextNotes, selectedObs.focusId);
       
       setAiAdvice(advice || 'AI tidak dapat memberikan saran saat ini.');
@@ -109,6 +132,7 @@ const PostObservation: React.FC<Props> = ({ observations, onSave, teachers }) =>
       reflection: cleanTextFinal(reflection),
       coachingFeedback: cleanTextFinal(feedback),
       rtl: cleanTextFinal(rtl),
+      photoPost: photoPost,
       status: SupervisionStatus.FOLLOWED_UP
     };
     onSave(updated);
@@ -303,6 +327,38 @@ const PostObservation: React.FC<Props> = ({ observations, onSave, teachers }) =>
               className="w-full bg-slate-50 border border-slate-200 p-5 rounded-2xl h-32 text-sm outline-none focus:ring-2 focus:ring-blue-500" 
               placeholder="Komitmen pengembangan..." 
             />
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-sm font-bold text-slate-700">4. Dokumentasi Pasca-Observasi & Coaching</label>
+            <div className="flex items-center space-x-4">
+              <label className="cursor-pointer group">
+                <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-400 group-hover:border-blue-500 group-hover:text-blue-600 transition-all overflow-hidden relative">
+                  {photoPost ? (
+                    <>
+                      <img src={photoPost} alt="Preview" className="w-full h-full object-cover" />
+                      <button 
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); setPhotoPost(undefined); }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-all"
+                      >
+                        <X size={12} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Camera size={24} className="mb-2" />
+                      <span className="text-[10px] font-bold uppercase text-center px-2">Unggah Foto Pasca</span>
+                    </>
+                  )}
+                </div>
+                <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+              </label>
+              <div className="text-xs text-slate-400 font-medium">
+                <p>Format: JPG, PNG (Maks 2MB)</p>
+                <p>Foto bukti pertemuan coaching alur TIRTA.</p>
+              </div>
+            </div>
           </div>
 
           <div className="pt-6 border-t border-slate-100 flex justify-end">

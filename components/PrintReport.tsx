@@ -161,6 +161,39 @@ const PrintReport: React.FC<Props> = ({ data, principalName, principalNip, schoo
         </div>
       </div>
 
+      {/* DOKUMENTASI KEGIATAN */}
+      {(data.photoPre || data.photoObs || data.photoPost) && (
+        <div className="mb-10 pt-4" style={{ pageBreakBefore: 'auto' }}>
+          <h4 className="bg-gray-100 p-1.5 font-bold border-l-4 border-black mb-6 uppercase text-xs">IV. DOKUMENTASI KEGIATAN</h4>
+          <div className="grid grid-cols-2 gap-8 px-4">
+            {data.photoPre && (
+              <div className="text-center">
+                <div className="border border-black p-1 mb-2 bg-white">
+                  <img src={data.photoPre} alt="Dokumentasi Pra-Observasi" className="w-full h-48 object-cover" />
+                </div>
+                <p className="text-[9px] font-bold uppercase">Foto 1: Pra-Observasi</p>
+              </div>
+            )}
+            {data.photoObs && (
+              <div className="text-center">
+                <div className="border border-black p-1 mb-2 bg-white">
+                  <img src={data.photoObs} alt="Dokumentasi Pelaksanaan" className="w-full h-48 object-cover" />
+                </div>
+                <p className="text-[9px] font-bold uppercase">Foto 2: Pelaksanaan Observasi</p>
+              </div>
+            )}
+            {data.photoPost && (
+              <div className="text-center">
+                <div className="border border-black p-1 mb-2 bg-white">
+                  <img src={data.photoPost} alt="Dokumentasi Pasca-Observasi" className="w-full h-48 object-cover" />
+                </div>
+                <p className="text-[9px] font-bold uppercase">Foto 3: Pasca-Observasi / Coaching</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* TANDA TANGAN */}
       <div className="flex justify-between mt-16 px-10">
         <div className="text-center">

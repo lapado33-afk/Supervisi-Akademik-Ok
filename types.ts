@@ -35,4 +35,7 @@ export interface ObservationData {
   coachingFeedback: string;
   rtl: string;
   status: SupervisionStatus;
+  photoPre?: string;
+  photoObs?: string;
+  photoPost?: string;
 }
