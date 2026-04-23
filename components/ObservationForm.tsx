@@ -232,7 +232,7 @@ const ObservationForm: React.FC<Props> = ({ observations, onSave, teachers }) =>
       teacherName: currentObs?.teacherName || teacherRef?.name || 'Guru',
       teacherNip: currentObs?.teacherNip || teacherRef?.nip || '',
       principalNip: currentObs?.principalNip || '',
-      date: new Date().toISOString(),
+      date: currentObs?.date || new Date().toISOString(),
       subject: currentObs?.subject || teacherRef?.subject || '',
       conversationTime: currentObs?.conversationTime || '',
       learningGoals: currentObs?.learningGoals || '',

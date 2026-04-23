@@ -105,6 +105,7 @@ const App: React.FC = () => {
           strategy: newData.strategy || oldData.strategy || '',
           supervisorNotes: newData.supervisorNotes || oldData.supervisorNotes || '',
           learningGoals: newData.learningGoals || oldData.learningGoals || '',
+          date: newData.date || oldData.date || new Date().toISOString(),
           photoPre: newData.photoPre || oldData.photoPre,
           photoObs: newData.photoObs || oldData.photoObs,
           photoPost: newData.photoPost || oldData.photoPost,
